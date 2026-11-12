@@ -75,7 +75,19 @@ docs/
   report.md                вопросы заказчику, алгоритм, допущения, метрики (текст для pdf)
   run_log.txt              лог прогона
 build.py                   сборка dist/agent.zip и dist/data.zip
+dist/
+  agent.zip                готовый навык для загрузки в GigaCowork
+  data.zip                 тестовые данные, эталон и генератор
 ```
+
+## Готовые архивы
+
+Скачать без сборки:
+
+- [`dist/agent.zip`](dist/agent.zip) — навык: `SKILL.md`, системный промпт, `scripts/`, `references/`
+- [`dist/data.zip`](dist/data.zip) — три файла Excel, эталон и `generate.py`
+
+Пересобираются командой `python build.py`.
 
 ## Быстрый старт
 
