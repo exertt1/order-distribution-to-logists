@@ -1,7 +1,40 @@
 from openpyxl import Workbook
 from typing import List
-from ..models import FulItem
-from ..constants import ColumnHeaders as CH
+from datetime import datetime
+from models import FulItem
+from constants import ColumnHeaders as CH
+
+
+_DATE_FORMATS = (
+    "%Y-%m-%d %H:%M:%S.%f",
+    "%Y-%m-%d %H:%M:%S",
+    "%Y-%m-%d",
+    "%d.%m.%Y %H:%M:%S",
+    "%d.%m.%Y",
+)
+
+
+def _fmt_date(value) -> str:
+    """Приводит дату из выгрузки к виду ДД.ММ.ГГГГ.
+
+    Нераспознанное значение возвращается как есть — без выдумывания.
+    """
+    if value is None or value == "":
+        return ""
+    if isinstance(value, datetime):
+        return value.strftime("%d.%m.%Y")
+
+    raw = str(value).strip()
+    if not raw:
+        return ""
+
+    for fmt in _DATE_FORMATS:
+        try:
+            return datetime.strptime(raw, fmt).strftime("%d.%m.%Y")
+        except ValueError:
+            continue
+
+    return raw
 
 
 class ExcelWriter:
@@ -69,8 +102,8 @@ class ExcelWriter:
                 ful.selected_logist or "не определено",  # Если логиста нет
                 "в работе",  # Дефолтный статус для нового заказа
                 "",  # Дата подтверждения пуста (еще не подтвержден)
-                ful.cut_off_date_raw or "",  # Переносим как есть
-                ful.ful_datetime_raw or "",  # Дата ФУЛ становится датой получения УЛ
+                _fmt_date(ful.cut_off_date_raw),  # Переносим как есть
+                _fmt_date(ful.ful_datetime_raw),  # Дата ФУЛ становится датой получения УЛ
                 ful.country_raw or "",
                 ful.method_raw or "",
                 "",  # Документы получены - пусто

@@ -1,5 +1,5 @@
 import re
-from .constants import DeliveryMethods, ChinaCodes, Roles, EmployeeStatuses, OrderStatuses
+from constants import DeliveryMethods, ChinaCodes, Roles, EmployeeStatuses, OrderStatuses
 
 def extract_order_id(text):
     if not text or not isinstance(text, str):

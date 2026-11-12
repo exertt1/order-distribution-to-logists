@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Optional, List
-from .parser import extract_order_id, normalize_supplier_name, determine_group, normalize_person_name
-from .constants import OrderStatuses
+from utils import extract_order_id, normalize_supplier_name, determine_group, normalize_person_name
+from constants import OrderStatuses
 
 
 @dataclass
@@ -144,7 +144,8 @@ class Employee:
 
         if "авиа" in role_lower or "air" in role_lower:
             self.group_type = "AIR"
-        elif "вед" in role_lower or "экспорт" in role_lower or "import" in role_lower:
+        elif ("вэд" in role_lower or "вед" in role_lower
+              or "экспорт" in role_lower or "import" in role_lower):
             self.group_type = "VED"
         elif "мульти" in role_lower or "мультимод" in role_lower:
             self.group_type = "MULTI"

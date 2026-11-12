@@ -3,9 +3,8 @@ from typing import List, Dict, Any, Optional
 import re
 
 # Импортируем наши модели и утилиты
-from ..models import FulItem, CloudOrder, Employee
-from ..parser import normalize_supplier_name, extract_order_id  # Допустим, эти функции в utils.py
-from ..constants import ColumnHeaders as CH
+from models import FulItem, CloudOrder, Employee
+from constants import ColumnHeaders as CH
 
 
 class ExcelReader:

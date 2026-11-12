@@ -4,15 +4,15 @@ from typing import List, Set
 
 # Импорты наших модулей
 # Предполагается, что файлы лежат в той же папке или в пакете scripts/
-from .models import FulItem, CloudOrder, Employee
-from .constants import ColumnHeaders as CH, LogisticsGroups, DuplicateActions
-from .excel.reader import ExcelReader
-from .excel.writer import ExcelWriter
-from .parser import determine_group, normalize_supplier_name, select_logist
-from .logic_engine import (
+from models import FulItem, CloudOrder, Employee
+# from .constants import ColumnHeaders as CH, LogisticsGroups, DuplicateActions
+from reader import ExcelReader
+from writer import ExcelWriter
+from logic_engine import (
     mark_fuls_as_duplicates,
     group_fuls_into_batches,
-    build_cloud_index
+    build_cloud_index,
+    select_logist
 )
 
 
@@ -77,7 +77,7 @@ def run_agent(ful_path: str, cloud_path: str, emp_path: str, output_dir: str):
         for (supplier_norm, group_type), batch_items in batches.items():
             # Вызываем функцию выбора ОДНОГО логиста на весь список заказов в батче
             best_logist_name, reason = select_logist(
-                delivery_method=group_type,
+                group_type=group_type,
                 supplier_name=supplier_norm,
                 employees=employees,
                 cloud_history=cloud_history
