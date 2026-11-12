@@ -75,3 +75,28 @@ class ColumnHeaders:
     EMP_STATE = "Текущее состояние"
     EMP_ROLE = "Должность"
     EMP_CODE = "Код (Таб. №)"
+
+
+# constants.py
+
+class DuplicateActions:
+    """
+    Шаблоны действий и сообщений для обработки повторных отправок ФУЛ.
+    """
+
+    # Текст, который дописывается в колонку "Комментарий" существующего заказа в Cloud
+    UPDATE_COMMENT_TEMPLATE = "Повторная отправка ФУЛа, {date}"
+
+    # Статус действия для листа Duplicates в итоговом Excel
+    ACTION_UPDATE_EXISTING = "UPDATE_EXISTING_RECORD"
+
+    # Сообщение для журнала аудита (Audit Log)
+    AUDIT_MESSAGE_DUPLICATE = "Order {order_id} already exists in Cloud. Skipping creation of new row."
+
+    # Действие для FUL-листа, если это дубликат (не создавать новую строку!)
+    NO_NEW_ROW_CREATED = True
+
+    @staticmethod
+    def get_update_comment_text(date_str: str) -> str:
+        """Формирует текст комментария с текущей датой."""
+        return DuplicateActions.UPDATE_COMMENT_TEMPLATE.format(date=date_str)

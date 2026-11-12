@@ -1,5 +1,5 @@
 import re
-from constants import DeliveryMethods, ChinaCodes, Roles, EmployeeStatuses, OrderStatuses
+from .constants import DeliveryMethods, ChinaCodes, Roles, EmployeeStatuses, OrderStatuses
 
 def extract_order_id(text):
     if not text or not isinstance(text, str):
@@ -55,14 +55,7 @@ def compare_suppliers(supplier1: str, supplier2: str) -> bool:
     return norm1 == norm2
 
 def select_logist(delivery_method: str, supplier_name: str, country: str, cloud_history: str, employees: str):
-    target_role: str = ""
-
-    if delivery_method == DeliveryMethods.AIR:
-        target_role = Roles.SPECIALIST_AIR
-    elif delivery_method != DeliveryMethods.AIR and country in ChinaCodes.CODES:
-        target_role = Roles.SPECIALIST_VED
-    else:
-        target_role = Roles.SPECIALIST_MULTI
+    target_role: str = determine_group(delivery_method, country)
 
     available_stuff: list = [
         emp for emp in employees
@@ -99,3 +92,21 @@ def select_logist(delivery_method: str, supplier_name: str, country: str, cloud_
         best_logist = min(load_scores, key=load_scores.get)
 
     return best_logist, f"Selected {best_logist} from {group_type}"
+
+def determine_group(method_raw: str, country_raw: str) -> Optional[str]:
+    method = method_raw.strip().lower() if method_raw else ""
+    country = country_raw.strip().lower() if country_raw else ""
+
+    if not method:
+        return None
+
+    if delivery_method == DeliveryMethods.AIR:
+        return Roles.SPECIALIST_AIR
+    elif delivery_method != DeliveryMethods.AIR and country in ChinaCodes.CODES:
+        return Roles.SPECIALIST_VED
+    else:
+        return Roles.SPECIALIST_MULTI
+
+def normalize_person_name(name: str) -> str:
+    if not name: return ""
+    return ' '.join(str(name).split()).lower()

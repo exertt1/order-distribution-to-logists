@@ -56,12 +56,12 @@ def generate_cloud_history(employees):
             "Бренд": brand,
             "Логист": logist,
             "Статус": status,
-            "Дата_подтверждения": date.today() if status == "confirm" else None,
+            "Дата подтверждения": date.today() if status == "confirm" else None,
             "Cut-off": None if status is "в работе" else date.today() + timedelta(days=7),
-            "Дата_получения_УЛ": date.today(),
-            "Страна_отправления": random.choice(countries),
-            "Способ_доставки": random.choice(methods),
-            "Дата_получения_документов": date.today(),
+            "Дата получения УЛ": date.today(),
+            "Страна отправления": random.choice(countries),
+            "Способ доставки": random.choice(methods),
+            "Дата получения документов": date.today(),
             "Комментарий": ""
         })
 
