@@ -1,3 +1,24 @@
 .venv
 .idea
-.xlsx
+__pycache__/
+*.pyc
+
+# результаты прогонов и артефакты сборки
+out*/
+dist/
+docs_log.txt
+
+# устаревшая версия до переупаковки навыка: канонический код в skill/scripts/,
+# данные — в data/. Файлы остаются локально, в репозиторий не попадают.
+/SKILL.md
+/__init__.py
+/main.py
+/reader.py
+/writer.py
+/logic_engine.py
+/models.py
+/utils.py
+/constants.py
+/parser.py
+/data_gen.py
+/test_*.xlsx
