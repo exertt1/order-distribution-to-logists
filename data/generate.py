@@ -13,10 +13,14 @@
 """
 
 import os
+import re
+import zipfile
 from datetime import date, datetime, timedelta
 
 from openpyxl import Workbook
 from openpyxl.styles import Font
+
+STABLE_TIMESTAMP = (2026, 11, 12, 0, 0, 0)
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(BASE_DIR, "data")
@@ -179,6 +183,41 @@ EXPECTED_SUMMARY = {
 }
 
 
+def fix_properties(workbook) -> None:
+    """Фиксирует служебные свойства книги."""
+    workbook.properties.created = datetime(2026, 11, 12)
+    workbook.properties.modified = datetime(2026, 11, 12)
+    workbook.properties.creator = "order-distribution-to-logists"
+    workbook.properties.lastModifiedBy = "order-distribution-to-logists"
+
+
+def stabilize_zip(path: str) -> None:
+    """Перезаписывает xlsx/zip с фиксированными отметками времени внутри.
+
+    Без этого каждый пересбор меняет байты файла из-за текущего времени
+    в zip-контейнере, и в git появляются лишние изменения.
+    """
+    if not path.lower().endswith((".xlsx", ".zip")):
+        return
+
+    with zipfile.ZipFile(path) as source:
+        items = [(info.filename, source.read(info.filename)) for info in source.infolist()]
+
+    with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED) as target:
+        for name, data in items:
+            if name == "docProps/core.xml":
+                # openpyxl проставляет дату сохранения в момент save — фиксируем её
+                data = re.sub(
+                    rb"<dcterms:modified[^>]*>[^<]*<",
+                    b'<dcterms:modified xsi:type="dcterms:W3CDTF">2026-11-12T00:00:00Z<',
+                    data,
+                )
+            info = zipfile.ZipInfo(name, date_time=STABLE_TIMESTAMP)
+            info.compress_type = zipfile.ZIP_DEFLATED
+            info.external_attr = 0o600 << 16
+            target.writestr(info, data)
+
+
 def _write(path: str, headers, rows) -> None:
     workbook = Workbook()
     worksheet = workbook.active
@@ -188,7 +227,9 @@ def _write(path: str, headers, rows) -> None:
         cell.font = Font(bold=True)
     for row in rows:
         worksheet.append(list(row))
+    fix_properties(workbook)
     workbook.save(path)
+    stabilize_zip(path)
     print(f"создан {path}")
 
 

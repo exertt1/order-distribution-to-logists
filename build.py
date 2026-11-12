@@ -8,7 +8,9 @@
 """
 
 import os
+import sys
 import zipfile
+from datetime import datetime
 
 from openpyxl import Workbook
 from openpyxl.styles import Font
@@ -17,6 +19,10 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 SKILL_DIR = os.path.join(BASE_DIR, "skill")
 DATA_DIR = os.path.join(BASE_DIR, "data")
 DIST_DIR = os.path.join(BASE_DIR, "dist")
+
+# Генератор данных — единственное место, где живёт стабилизация файлов
+sys.path.insert(0, DATA_DIR)
+from generate import fix_properties, stabilize_zip  # noqa: E402
 
 CLOUD_HEADERS = [
     "Заказ",
@@ -46,7 +52,10 @@ def create_cloud_template() -> str:
     worksheet.append(CLOUD_HEADERS)
     for cell in worksheet[1]:
         cell.font = Font(bold=True)
+    # Служебные свойства фиксированы, иначе каждый пересбор меняет байты файла
+    fix_properties(workbook)
     workbook.save(path)
+    stabilize_zip(path)
     return path
 
 
@@ -60,6 +69,7 @@ def zip_skill(path: str) -> None:
                 full_path = os.path.join(root, name)
                 arcname = os.path.relpath(full_path, SKILL_DIR)
                 archive.write(full_path, arcname)
+    stabilize_zip(path)
 
 
 def zip_data(path: str) -> None:
@@ -73,6 +83,7 @@ def zip_data(path: str) -> None:
                     f"нет файла {full_path} — сначала запусти python data/generate.py"
                 )
             archive.write(full_path, name)
+    stabilize_zip(path)
 
 
 def main() -> None:
